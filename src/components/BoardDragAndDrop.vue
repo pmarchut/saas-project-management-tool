@@ -1,20 +1,24 @@
-<script setup>
+<script setup lang="ts">
 import { watch, reactive, toRaw } from 'vue';
 import { cloneDeep } from 'lodash-es';
 import draggable from 'vuedraggable';
+import type { Board, Column, Task } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
+import { useAlerts } from '@/stores/alerts';
+const alerts = useAlerts();
 
-const props = defineProps({
-  board: Object,
-  tasks: Array,
-})
+const props = defineProps<{
+  board: Board;
+  tasks: Task[];
+  addTask(task: Partial<Task>): Task; 
+}>();
 
 // emits
 const emit = defineEmits(["update"]);
 
 const tasks = reactive(cloneDeep(props.tasks));
 const board = reactive(cloneDeep(props.board));
-const columns = reactive(JSON.parse(board.order));
+const columns = reactive<Column[]>(JSON.parse(board.order as string));
 
 const addColumn = () => {
   columns.push({ id: uuidv4(), title: "New column", taskIds: [] });
@@ -26,6 +30,17 @@ watch(columns, () => {
     cloneDeep({ ...props.board, order: JSON.stringify(toRaw(columns)) })
   );
 });
+
+async function addTask({ column, title } : { column: Column, title: string }) {
+  const newTask = { title }
+  try {
+    const savedTask = await props.addTask(newTask);
+    tasks.push({ ...savedTask })
+    column.taskIds.push(savedTask.id);
+  } catch {
+    alerts.error("Error creating task!");
+  }
+}
 </script>
 
 <template>
@@ -56,6 +71,14 @@ watch(columns, () => {
               ></task-card>
             </template>
           </draggable>
+          <TaskCreator 
+            @create="
+              addTask({
+                column,
+                title: $event
+              })
+            " 
+          />
         </div>
       </template>
     </draggable>

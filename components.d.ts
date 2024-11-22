@@ -13,6 +13,7 @@ declare module '@vue/runtime-core' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TaskCard: typeof import('./src/components/TaskCard.vue')['default']
+    TaskCreator: typeof import('./src/components/TaskCreator.vue')['default']
     TheAlerts: typeof import('./src/components/TheAlerts.vue')['default']
     TheDrawer: typeof import('./src/components/TheDrawer.vue')['default']
     TheNavbar: typeof import('./src/components/TheNavbar.vue')['default']
