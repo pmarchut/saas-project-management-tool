@@ -1,63 +1,37 @@
 <script setup lang="ts">
-import type { Board } from '@/types';
+import type { Board } from "@/types";
 import { ref } from "vue";
-import { useAlerts } from '@/stores/alerts';
+import { useAlerts } from "@/stores/alerts";
+import boardsQuery from "@/graphql/queries/boards.query.gql";
+import createBoardMutation from "@/graphql/mutations/createBoard.mutation.gql";
+import { useQuery, useMutation } from "@vue/apollo-composable";
+import { computed } from "vue";
 
-const boards = ref<Partial<Board>[]>([
-  {
-    id: "1",
-    title: "My First Board",
-    order: "[]",
-    image: {
-      downloadUrl: "https://picsum.photos/480/270?board=1",
-    },
-  },
-  {
-    id: "2",
-    title: "My Second Board",
-    order: "[]",
-    image: {
-      downloadUrl: "https://picsum.photos/480/270?board=2",
-    },
-  },
-  {
-    id: "3",
-    title: "My Third Board",
-    order: "[]",
-    image: {
-      downloadUrl: "https://picsum.photos/480/270?watermelon=3",
-    },
-  },
-  {
-    id: "4",
-    title: "And another one",
-    order: "[]",
-    image: {
-      downloadUrl: "https://picsum.photos/480/270?watermelon=4",
-    },
-  },
-  {
-    id: "5",
-    title: "Cute boardie",
-    order: "[]",
-    image: {
-      downloadUrl: "https://picsum.photos/480/270?watermelon=5",
-    },
-  },
-  {
-    id: "6",
-    title: "Serious corpo board",
-    order: "[]",
-    image: {
-      downloadUrl: "https://picsum.photos/480/270?watermelon=6",
-    },
-  },
-]);
+const { result, loading, onError } = useQuery(boardsQuery);
+const boards = computed(() => result.value?.boardsList?.items || []);
 
 const alerts = useAlerts();
 
-function createBoard() {
-  alerts.success("Board created!");
+onError(() => alerts.error("Error loading boards"));
+
+const { mutate: createBoard } = useMutation(createBoardMutation, () => ({
+  update(cache, { data: { boardCreate } }) {
+    cache.updateQuery({ query: boardsQuery }, (res) => ({
+      boardsList: {
+        items: [...res.boardsList.items, boardCreate],
+      },
+    }));
+  },
+}));
+
+// function createBoard() {
+//   alerts.success("Board created!");
+// }
+
+const newBoardPayload = {
+  data: {
+    title: "Test board 2",
+  }
 }
 
 const getCoolGradient = (index) => {
@@ -92,8 +66,9 @@ const getCoolGradient = (index) => {
         class="transition duration-100 ease-in border rounded-md hover:-rotate-3"
       />
     </div>
-    <button class="text-gray-500" @click="createBoard()">
+    <button class="text-gray-500" @click="createBoard(newBoardPayload)">
       <span>New Board +</span>
     </button>
   </div>
+  <p v-if="loading">Loading...</p>
 </template>

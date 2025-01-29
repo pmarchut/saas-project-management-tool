@@ -18,7 +18,7 @@ const emit = defineEmits(["update"]);
 
 const tasks = reactive(cloneDeep(props.tasks));
 const board = reactive(cloneDeep(props.board));
-const columns = reactive<Column[]>(JSON.parse(board.order as string));
+const columns = reactive<Column[]>(board.order || []);
 
 const addColumn = () => {
   columns.push({ id: uuidv4(), title: "New column", taskIds: [] });
@@ -27,7 +27,7 @@ const addColumn = () => {
 watch(columns, () => {
   emit(
     "update",
-    cloneDeep({ ...props.board, order: JSON.stringify(toRaw(columns)) })
+    cloneDeep({ ...props.board, order: toRaw(columns) })
   );
 });
 

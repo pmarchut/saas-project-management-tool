@@ -1,0 +1,7 @@
+query board($id: ID!) {
+  board(id: $id) {
+    id
+    title
+    order
+  }
+}

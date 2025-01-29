@@ -20,7 +20,7 @@ export interface Board extends Resource8base {
 
   // Board order JSON encoded in DB and thus can be a string
   // when decoded it's an array of Columns
-  order: string | Column[];
+  order: Column[];
 
   // relationships
   image?: Partial<File>;
