@@ -3,5 +3,12 @@ query board($id: ID!) {
     id
     title
     order
+    tasks {
+      items {
+        id
+        title
+        type
+      }
+    }
   }
 }

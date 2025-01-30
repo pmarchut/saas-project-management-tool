@@ -3,5 +3,15 @@ mutation updateBoard($data: BoardUpdateInput!) {
     id
     title
     order
+    tasks {
+      items {
+        id
+        title
+        createdAt
+        updatedAt
+        dueAt
+        type
+      }
+    }
   }
 }

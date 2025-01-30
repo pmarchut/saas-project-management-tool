@@ -4,18 +4,18 @@ import { Button as KButton } from "@progress/kendo-vue-buttons";
 import { Popup as KPopup } from "@progress/kendo-vue-popup";
 import deleteBoardMutation from "@/graphql/mutations/deleteBoard.mutation.gql";
 import updateBoardMutation from "@/graphql/mutations/updateBoard.mutation.gql";
-import boardsQuery from "@/graphql/queries/boards.query.gql";
 import boardQuery from "@/graphql/queries/board.query.gql";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import { useAlerts } from "@/stores/alerts";
 import { useRouter } from "vue-router";
 import { useRoute } from "vue-router";
 import { computed } from "vue";
+import addTaskMutation from "../../graphql/mutations/addTask.mutation.gql";
 const props = defineProps({
   id: String,
 })
 
-import type { Task } from "@/types";
+import type { Board, Task } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 
 const { id: boardId } = toRefs(props);
@@ -23,8 +23,14 @@ const { id: boardId } = toRefs(props);
 const { result, loading, onError } = useQuery(boardQuery, { 
   id: boardId?.value 
 });
-const board = computed(() => result.value?.board || {});
-const tasks = computed<Partial<Task>[]>(() => []);
+const board = computed(() => 
+  result.value?.board 
+    ? { ...result.value.board, tasks: result.value.board.tasks?.items } 
+    : {}
+);
+const tasks = computed<Partial<Task>[]>(
+  () => result.value?.board?.tasks?.items || []
+);
 
 const showMenu = ref(false);
 
@@ -34,53 +40,56 @@ const route = useRoute();
 
 onError(() => alerts.error("Error loading board"));
 
+const { mutate: createTaskOnBoard, onDone: onDoneCreatingTask, onError: onErrorCreatingTask } = useMutation(addTaskMutation);
+
 async function addTask(task: Task) {
-  return new Promise((resolve, reject) => {
-    const taskWithTheId = {
-      ...task,
-      id: uuidv4(),
-    }
-    tasks.value.push(taskWithTheId);
-    resolve(taskWithTheId);
-  });
+  const res = await createTaskOnBoard({
+    boardId: boardId?.value,
+    ...task
+  })
+
+  return res?.data?.boardUpdate?.tasks?.items[0];
 }
+
+onErrorCreatingTask((error) => {
+  console.error(error);
+  alerts.error(`Error adding task to board: ${error}`);
+})
+
+onDoneCreatingTask((res) => {
+  alerts.success("You added a new task");
+})
 
 const { mutate: updateBoard } = useMutation(updateBoardMutation, () => ({
   update(cache, { data: { boardUpdate } }) {
-    cache.updateQuery({ query: boardQuery }, (res) => {
-      //test
-      console.log(boardUpdate);
-
-      return {
-        board: boardUpdate
-      }
-    });
+    cache.updateQuery({ query: boardQuery }, (res) => ({
+      board: boardUpdate
+    }));
   },
 }));
 
-const handleUpdateBoard = (b) => {
-  updateBoard({ data: b });
+const handleUpdateBoard = (b: Partial<Board>) => {
+  updateBoard({ 
+    data: { 
+      ...b,
+      id: boardId?.value, 
+      tasks: b.tasks 
+        ? { update: b.tasks?.map((task) => ({ data: task })) } 
+        : undefined 
+    }, 
+  });
 }
 
 const { 
   mutate: deleteBoard, 
   onError: onDeleteError, 
   loading: deleteLoading, 
-} = useMutation(deleteBoardMutation, {
-  update(cache, { data: { boardDelete } }, { variables }) {
-    if (boardDelete.success) {
-      cache.updateQuery({ query: boardsQuery }, (res) => ({
-        boardsList: {
-          items: res.boardsList.items.filter(
-            (board) => board.id !== variables?.id
-          ),
-        },
-      }));
-    }
-  },
-});
+} = useMutation(deleteBoardMutation);
 
-onDeleteError(() => alerts.error("Error deleting board"));
+onDeleteError((error) => {
+  console.error(error);
+  alerts.error("Error deleting board");
+});
 
 // Funkcja do usuwania tablicy
 const handleDeleteBoard = async (boardId: string) => {
@@ -100,11 +109,20 @@ const handleDeleteBoard = async (boardId: string) => {
 <template>
   <p v-if="loading">Loading...</p>
   <div v-else class="flex items-start justify-between w-100 pt-8">
-    <!-- <app-page-heading>
-      {{ board.title }}
-    </app-page-heading> -->
-
     <div>
+      <app-page-heading>
+        <input 
+          type="text" 
+          :value="board.title"
+          @keydown.enter="($event.target as HTMLInputElement).blur()"
+          @blur="
+            handleUpdateBoard({ 
+              title: ($event.target as HTMLInputElement).value 
+            })
+          "
+        />
+      </app-page-heading>
+    
       <board-drag-and-drop :board="board" :tasks="tasks" @update="handleUpdateBoard" :addTask="addTask" />
 
       <details>

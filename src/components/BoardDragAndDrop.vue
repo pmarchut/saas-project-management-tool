@@ -37,14 +37,14 @@ async function addTask({ column, title } : { column: Column, title: string }) {
     const savedTask = await props.addTask(newTask);
     tasks.push({ ...savedTask })
     column.taskIds.push(savedTask.id);
-  } catch {
+  } catch (e) {
+    console.error(e);
     alerts.error("Error creating task!");
   }
 }
 </script>
 
 <template>
-  <button class="text-gray-500" @click="addColumn">New Column +</button>
   <div class="flex items-start py-12">
     <draggable 
       :list="columns" 
@@ -54,7 +54,15 @@ async function addTask({ column, title } : { column: Column, title: string }) {
     >
       <template #item="{ element: column }">
         <div class="column bg-gray-100 flex flex-col justify-between rounded-lg px-3 py-3 rounded mr-4 w-[300px]">
-          <h2>{{ column.title }}</h2>
+          <h3>
+            <input 
+              type="text" 
+              :value="column.title"
+              @keydown.enter="($event.target as HTMLInputElement).blur()"
+              @blur="column.title = ($event.target as HTMLInputElement).value"
+              class="mb-2 bg-transparent"
+            />
+          </h3>
           <draggable 
             :list="column.taskIds" 
             group="tasks" 
@@ -82,5 +90,6 @@ async function addTask({ column, title } : { column: Column, title: string }) {
         </div>
       </template>
     </draggable>
+    <button class="text-gray-500" @click="addColumn">New Column +</button>
   </div>
 </template>
