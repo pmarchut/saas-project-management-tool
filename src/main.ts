@@ -3,8 +3,8 @@ import { createPinia } from "pinia";
 import TwicPics from "@twicpics/components/vue3";
 import App from "./App.vue";
 import router from "./router";
+import "./common";
 import "@/assets/base.css";
-import "@progress/kendo-theme-default/dist/all.css";
 import "@twicpics/components/style.css";
 import { ApolloClient, createHttpLink, gql, InMemoryCache, from } from '@apollo/client/core'
 import { removeTypenameFromVariables } from '@apollo/client/link/remove-typename';

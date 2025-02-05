@@ -30,7 +30,7 @@ const { mutate: createBoard } = useMutation(createBoardMutation, () => ({
 
 const newBoardPayload = {
   data: {
-    title: "Test board 2",
+    title: "My New Board",
   }
 }
 

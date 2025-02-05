@@ -4,6 +4,7 @@ import { Button as KButton } from "@progress/kendo-vue-buttons";
 import { Popup as KPopup } from "@progress/kendo-vue-popup";
 import deleteBoardMutation from "@/graphql/mutations/deleteBoard.mutation.gql";
 import updateBoardMutation from "@/graphql/mutations/updateBoard.mutation.gql";
+import boardsQuery from "@/graphql/queries/boards.query.gql";
 import boardQuery from "@/graphql/queries/board.query.gql";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import { useAlerts } from "@/stores/alerts";
@@ -84,7 +85,22 @@ const {
   mutate: deleteBoard, 
   onError: onDeleteError, 
   loading: deleteLoading, 
-} = useMutation(deleteBoardMutation);
+} = useMutation(deleteBoardMutation, {
+  update(cache, { data: { boardDelete } }, { variables }) {
+    if (boardDelete.success) {
+      cache.updateQuery({ query: boardsQuery }, (res) => {
+        if (res?.boardsList)
+          return {
+            boardsList: {
+              items: res.boardsList.items.filter(
+                (board) => board.id !== variables?.id
+              ),
+            },
+          }
+      });
+    }
+  },
+});
 
 onDeleteError((error) => {
   console.error(error);
