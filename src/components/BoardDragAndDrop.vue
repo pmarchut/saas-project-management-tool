@@ -73,8 +73,8 @@ async function addTask({ column, title } : { column: Column, title: string }) {
           >
             <template #item="{ element: taskId }">
               <task-card
-                v-if="tasks.find((t) => t.id === taskId)"
-                :task="tasks.find((t) => t.id === taskId)"
+                v-if="props.tasks.find((t) => t.id === taskId)"
+                :task="props.tasks.find((t) => t.id === taskId)"
                 class="mt-3 cursor-move"
               ></task-card>
             </template>

@@ -61,13 +61,21 @@ onDoneCreatingTask((res) => {
   alerts.success("You added a new task");
 })
 
-const { mutate: updateBoard } = useMutation(updateBoardMutation, () => ({
+const { 
+  mutate: updateBoard, 
+  loading: loadingUpdateBoard, 
+  onDone: onUpdateBoardDone 
+} = useMutation(updateBoardMutation, () => ({
   update(cache, { data: { boardUpdate } }) {
     cache.updateQuery({ query: boardQuery }, (res) => ({
       board: boardUpdate
     }));
   },
 }));
+
+onUpdateBoardDone(() => {
+  alerts.success("You updated a board");
+})
 
 const handleUpdateBoard = (b: Partial<Board>) => {
   updateBoard({ 
@@ -77,6 +85,19 @@ const handleUpdateBoard = (b: Partial<Board>) => {
       tasks: b.tasks 
         ? { update: b.tasks?.map((task) => ({ data: task })) } 
         : undefined 
+    }, 
+  });
+}
+
+const handleUpdateTask = (t: Partial<Task>) => {
+  updateBoard({ 
+    data: { 
+      id: boardId?.value, 
+      tasks: { 
+        update: tasks.value
+          .map((task) => (task.id === t.id ? { ...task, ...t } : task))
+          .map((task) => ({ data: task }))
+      }
     }, 
   });
 }
@@ -165,6 +186,7 @@ const handleDeleteBoard = async (boardId: string) => {
         :theme-color="'error'"
         :fill-mode="'flat'"
         :icon="'trash'"
+        :disabled="deleteLoading"
         @click="handleDeleteBoard(route.params.id as string)"
       >
         <template v-if="deleteLoading">
@@ -174,6 +196,11 @@ const handleDeleteBoard = async (boardId: string) => {
       </KButton>
     </KPopup>
 
+    <RouterView 
+      :loading-update-task="loadingUpdateBoard"
+      @updateTask="handleUpdateTask" 
+      @close="router.push(`/boards/${route.params.id}`)" 
+    />
   </div>
 </template>
 
