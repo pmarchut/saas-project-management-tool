@@ -19,6 +19,7 @@ const props = defineProps({
 import type { Board, Task } from "@/types";
 import { v4 as uuidv4 } from "uuid";
 
+const idUser = localStorage.getItem("id_user");
 const { id: boardId } = toRefs(props);
 
 const { result, loading, onError } = useQuery(boardQuery, { 
@@ -102,6 +103,21 @@ const handleUpdateTask = (t: Partial<Task>) => {
   });
 }
 
+const boardsQueryVariables = computed(() => ({
+  customFilter: idUser
+    ? {
+        team: {
+          users: {
+            some: {
+              id: {
+                equals: idUser
+              }
+            }
+          }
+        }
+      } 
+    : null
+}));
 const { 
   mutate: deleteBoard, 
   onError: onDeleteError, 
@@ -109,16 +125,18 @@ const {
 } = useMutation(deleteBoardMutation, {
   update(cache, { data: { boardDelete } }, { variables }) {
     if (boardDelete.success) {
-      cache.updateQuery({ query: boardsQuery }, (res) => {
-        if (res?.boardsList)
-          return {
-            boardsList: {
-              items: res.boardsList.items.filter(
-                (board) => board.id !== variables?.id
-              ),
-            },
-          }
-      });
+      cache.updateQuery(
+        { query: boardsQuery, variables: boardsQueryVariables.value }, 
+        (res) => {
+          if (res?.boardsList)
+            return {
+              boardsList: {
+                items: res.boardsList.items.filter(
+                  (board) => board.id !== variables?.id
+                ),
+              },
+            }
+        });
     }
   },
 });

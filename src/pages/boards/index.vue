@@ -6,8 +6,30 @@ import boardsQuery from "@/graphql/queries/boards.query.gql";
 import createBoardMutation from "@/graphql/mutations/createBoard.mutation.gql";
 import { useQuery, useMutation } from "@vue/apollo-composable";
 import { computed } from "vue";
+import { useAuthUserStore } from "@/stores/AuthUserStore";
 
-const { result, loading, onError } = useQuery(boardsQuery);
+const authUserStore = useAuthUserStore();
+const idUser = localStorage.getItem("id_user");
+
+const boardsQueryVariables = computed(() => ({
+  customFilter: idUser
+    ? {
+        team: {
+          users: {
+            some: {
+              id: {
+                equals: idUser
+              }
+            }
+          }
+        }
+      } 
+    : null
+}));
+const { result, loading, onError } = useQuery(
+  boardsQuery, 
+  boardsQueryVariables.value
+);
 const boards = computed(() => result.value?.boardsList?.items || []);
 
 const alerts = useAlerts();
@@ -16,11 +38,14 @@ onError(() => alerts.error("Error loading boards"));
 
 const { mutate: createBoard } = useMutation(createBoardMutation, () => ({
   update(cache, { data: { boardCreate } }) {
-    cache.updateQuery({ query: boardsQuery }, (res) => ({
-      boardsList: {
-        items: [...res.boardsList.items, boardCreate],
-      },
-    }));
+    cache.updateQuery(
+      { query: boardsQuery, variables: boardsQueryVariables.value },
+      (res) => ({
+        boardsList: {
+          items: [...res.boardsList.items, boardCreate],
+        },
+      })
+    );
   },
 }));
 
@@ -28,11 +53,12 @@ const { mutate: createBoard } = useMutation(createBoardMutation, () => ({
 //   alerts.success("Board created!");
 // }
 
-const newBoardPayload = {
+const newBoardPayload = computed(() => ({
   data: {
+    team: { connect: { id: authUserStore.user?.team.items[0].id } },
     title: "My New Board",
   }
-}
+}));
 
 const getCoolGradient = (index) => {
   let finalGradientString = ""

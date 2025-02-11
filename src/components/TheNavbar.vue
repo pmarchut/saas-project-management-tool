@@ -36,7 +36,7 @@ const showTeams = ref(false);
         </ul>
       </KPopup>
 
-      <KButton :rounded="'full'" :shape="'rectangle'" :icon="'logout'" :theme-color="'warning'">Logout</KButton>
+      <KButton :rounded="'full'" :shape="'rectangle'" :icon="'logout'" :theme-color="'warning'" @click="$router.push('/logout')">Logout</KButton>
     </div>
   </div>
 </template>

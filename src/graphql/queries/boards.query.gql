@@ -1,7 +1,7 @@
 #import "../fragments/board.fragment.gql"
 
-query BoardsList {
-    boardsList {
+query BoardsList ($customFilter: BoardFilter) {
+    boardsList(filter: $customFilter) {
         items {
             ...Board
         }
