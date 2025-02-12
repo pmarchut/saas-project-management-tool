@@ -3,11 +3,12 @@
 import { Drawer, DrawerContent } from '@progress/kendo-vue-layout';
 
 import { useLocalStorage } from '@vueuse/core';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 import { computed, ref, onMounted } from 'vue';
 
 const router = useRouter();
+const route = useRoute();
 
 const expanded = useLocalStorage("vue-forge-drawer-expanded", true);
 const expandedIcon = computed(() =>
@@ -18,7 +19,7 @@ const items = computed(() => [
     text: "Boards",
     icon: "k-i-set-column-position",
     data: {
-      path: "/",
+      path: "/boards",
     },
   },
   {
@@ -77,7 +78,7 @@ onMounted(() => {
           :items="
             items.map((item, index) => ({
               ...item,
-              selected: index === selectedId,
+              selected: item.data.path ? route.path.startsWith(item.data.path) : false,
             }))
           "
           @select="onSelect">
