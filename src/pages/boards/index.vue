@@ -49,18 +49,18 @@ const { mutate: createBoard } = useMutation(createBoardMutation, () => ({
   },
 }));
 
-// function createBoard() {
-//   alerts.success("Board created!");
-// }
+async function handleBoardCreate() {
+  const newBoardPayload = {
+    data: {
+      team: { connect: { id: authUserStore.user?.team.items[0].id } },
+      title: "My New Board",
+    }
+  };
+  const res = await createBoard(newBoardPayload);
+  alerts.success("New Board Created!");
+}
 
-const newBoardPayload = computed(() => ({
-  data: {
-    team: { connect: { id: authUserStore.user?.team.items[0].id } },
-    title: "My New Board",
-  }
-}));
-
-const getCoolGradient = (index) => {
+const getCoolGradient = (index: number) => {
   let finalGradientString = ""
   switch (index) {
     case 1: 
@@ -92,7 +92,7 @@ const getCoolGradient = (index) => {
         class="transition duration-100 ease-in border rounded-md hover:-rotate-3"
       />
     </div>
-    <button class="text-gray-500" @click="createBoard(newBoardPayload)">
+    <button class="text-gray-500" @click="handleBoardCreate">
       <span>New Board +</span>
     </button>
   </div>

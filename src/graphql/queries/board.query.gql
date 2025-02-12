@@ -2,6 +2,9 @@ query board($id: ID!) {
   board(id: $id) {
     id
     title
+    image {
+      downloadUrl
+    }
     order
     tasks {
       items {

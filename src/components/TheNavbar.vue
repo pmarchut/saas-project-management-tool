@@ -1,24 +1,27 @@
 <script setup lang="ts">
 
-import { Button as KButton } from '@progress/kendo-vue-buttons';
-import { Popup as KPopup } from '@progress/kendo-vue-popup';
+import { Button as KButton } from "@progress/kendo-vue-buttons";
+import { Popup as KPopup } from "@progress/kendo-vue-popup";
 
-import { ref } from 'vue';
+import { ref } from "vue";
+
+import { useAuthUserStore } from "@/stores/AuthUserStore";
 
 const showTeams = ref(false);
+const authUserStore = useAuthUserStore();
 
 </script>
 
 <template>
   <div
     class="p-4 border-bottom border-2 flex justify-between"
-    style="margin: -1px"
+    style="margin-bottom: -1px; margin-top: -1px"
   >
     <img 
       src="https://vuejsforge.com/.netlify/images?url=%2Fimages%2Flogo-vuejs-forge.svg"
       width="150"
       class="max-w-none"
-      alt="Vue.js Forge"    
+      alt="Vue.js Forge"
     />
     <div>
       <button
@@ -31,8 +34,13 @@ const showTeams = ref(false);
       </button>
       <KPopup :anchor="'button'" :show="showTeams" class-name="mt-5">
         <ul>
-          <li class="px-5 py-2" @click="showTeams = false">Team 1</li>
-          <li class="px-5 py-2" @click="showTeams = false">Team 2</li>
+          <li 
+            v-for="team in authUserStore.user?.team.items" 
+            :key="team.id" 
+            class="px-5 py-2" 
+            @click="showTeams = false">
+            {{ team.name }}
+          </li>
         </ul>
       </KPopup>
 

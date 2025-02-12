@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { ref, toRefs } from "vue";
-import { Button as KButton } from "@progress/kendo-vue-buttons";
-import { Popup as KPopup } from "@progress/kendo-vue-popup";
+import { toRefs } from "vue";
 import deleteBoardMutation from "@/graphql/mutations/deleteBoard.mutation.gql";
 import updateBoardMutation from "@/graphql/mutations/updateBoard.mutation.gql";
 import boardsQuery from "@/graphql/queries/boards.query.gql";
@@ -33,8 +31,6 @@ const board = computed(() =>
 const tasks = computed<Partial<Task>[]>(
   () => result.value?.board?.tasks?.items || []
 );
-
-const showMenu = ref(false);
 
 const alerts = useAlerts();
 const router = useRouter();
@@ -187,32 +183,11 @@ const handleDeleteBoard = async (boardId: string) => {
       </details>
     </div>
     
-    <KButton
-      ref="button"
-      :theme-color="'error'"
-      :fill-mode="'outline'"
-      :icon="'folder'"
-      @click="showMenu = !showMenu"
-    >Show Menu</KButton>
-    <KPopup 
-      :anchor="'button'" 
-      :show="showMenu" 
-      :popupClass="'board-popup'" 
-      :anchorAlign="{ horizontal: 'right', vertical: 'bottom' }" 
-      :popupAlign="{ horizontal: 'right', vertical: 'top' }">
-      <KButton
-        :theme-color="'error'"
-        :fill-mode="'flat'"
-        :icon="'trash'"
-        :disabled="deleteLoading"
-        @click="handleDeleteBoard(route.params.id as string)"
-      >
-        <template v-if="deleteLoading">
-          <span class="k-icon k-i-spinner k-spin"></span> Deleting...
-        </template>
-        <template v-else>Delete Board</template>
-      </KButton>
-    </KPopup>
+    <BoardMenu 
+      :board="board"
+      :delete-loading="deleteLoading" 
+      @deleteBoard="handleDeleteBoard(route.params.id as string)" 
+    />
 
     <RouterView 
       :loading-update-task="loadingUpdateBoard"
@@ -228,10 +203,5 @@ pre {
   overflow-x: auto;
   white-space: pre-wrap;
   word-wrap: break-word;
-}
-</style>
-<style>
-.board-popup {
-  padding: 1rem !important;
 }
 </style>
