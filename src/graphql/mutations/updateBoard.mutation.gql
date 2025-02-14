@@ -1,7 +1,10 @@
-mutation updateBoard($data: BoardUpdateInput!) {
-  boardUpdate(data: $data) {
+mutation updateBoard($data: BoardUpdateInput!, $filter: BoardKeyFilter!) {
+  boardUpdate(data: $data, filter: $filter) {
     id
     title
+    image {
+      downloadUrl
+    }
     order
     tasks {
       items {
@@ -11,6 +14,13 @@ mutation updateBoard($data: BoardUpdateInput!) {
         updatedAt
         dueAt
         type
+      }
+    }
+    labels {
+      items {
+        id
+        label
+        color
       }
     }
   }

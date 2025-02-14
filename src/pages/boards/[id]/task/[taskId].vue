@@ -19,10 +19,7 @@
     <KDialogActionsBar>
       <KButton @click="onCloseClicked">Close</KButton>
       <KButton @click="onSaveClicked" :disabled="props.loadingUpdateTask">
-        <template v-if="props.loadingUpdateTask">
-          <span class="k-icon k-i-spinner k-spin"></span> Updating...
-        </template>
-        <template v-else>Save</template>
+        Save
       </KButton>
     </KDialogActionsBar>
   </KDialog>

@@ -6,13 +6,17 @@ import { onClickOutside } from "@vueuse/core";
 import { useMutation } from "@vue/apollo-composable";
 import attachImageToBoardMutation from "@/graphql/mutations/attachImageToBoard.mutation.gql";
 import { useAlerts } from "@/stores/alerts";
-import type { Board } from "@/types";
+import type { Board, Label } from "@/types";
 
 const alerts = useAlerts();
 
 const props = defineProps<{
-  board: Partial<Board>
-  deleteLoading?: boolean
+  board: Partial<Board>;
+  labels: Partial<Label>[];
+  selectedLabels: Partial<Label>[];
+  deleteLoading?: boolean;
+  createLabelLoading?: boolean;
+  loadingLabelId?: string | null;
 }>();
 
 const showMenu = ref(false);
@@ -23,6 +27,11 @@ onClickOutside(menu, () => setTimeout(() => (showMenu.value = false), 2));
 const emit = defineEmits<{
   (e: "deleteBoard", payload: null): void;
   (e: "imageUpload", payload: { id: string }): void;
+  (e: "createLabel", payload: Partial<Label>): void;
+  (e: "selectLabel", payload: Partial<Label>): void;
+  (e: "deselectLabel", payload: Partial<Label>): void;
+  (e: "deleteLabel", payload: Partial<Label>): void;
+  (e: "updateLabel", payload: Partial<Label>): void;
 }>()
 
 const {
@@ -65,7 +74,7 @@ onImageAttached((result) => {
             @click="emit('deleteBoard', null)"
           >
             <template v-if="props.deleteLoading">
-              <span class="k-icon k-i-spinner k-spin"></span> Deleting...
+              <AppLoader /> Deleting...
             </template>
             <template v-else>Delete Board</template>
           </KButton>
@@ -82,6 +91,19 @@ onImageAttached((result) => {
                 imageId: $event.id,
               })
             "
+          />
+        </li>
+        <li>
+          <AppLabelsPicker 
+            :labels="props.labels" 
+            :selected="props.selectedLabels"
+            :create-label-loading="createLabelLoading"
+            :loading-label-id="loadingLabelId"
+            @create="emit('createLabel', $event)"
+            @select="emit('selectLabel', $event)"
+            @deselect="emit('deselectLabel', $event)"
+            @delete="emit('deleteLabel', $event)"
+            @labelUpdate="emit('updateLabel', $event)"
           />
         </li>
       </ul>

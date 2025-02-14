@@ -13,5 +13,12 @@ query board($id: ID!) {
         type
       }
     }
+    labels {
+      items {
+        id
+        label
+        color
+      }
+    }
   }
 }
