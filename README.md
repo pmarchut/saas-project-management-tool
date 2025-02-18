@@ -1,6 +1,8 @@
-# vue-forge-boilerplate
+# saas-project-management-tool
 
-This template should help get you started developing with Vue 3 in Vite.
+Site: https://transcendent-peony-99e906.netlify.app
+Email: jbond@gmail.com
+Password: Forge123
 
 ## Recommended IDE Setup
 
