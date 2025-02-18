@@ -64,16 +64,16 @@ const getCoolGradient = (index: number) => {
   let finalGradientString = ""
   switch (index) {
     case 1: 
-      finalGradientString = "from-orange-400 to-pink-500";
+      finalGradientString = "from-orange-400 from-0% to-pink-500 to-100%";
       break;
     case 2: 
-      finalGradientString = "from-green-400 to-blue-400";
+      finalGradientString = "from-green-400 from-0% to-blue-400 to-100%";
       break;
     case 3: 
-      finalGradientString = "from-purple-400 to-blue-400";
+      finalGradientString = "from-purple-400 from-0% to-blue-400 to-100%";
       break;
     default:
-      finalGradientString = "from-orange-400 to-yellow-500";
+      finalGradientString = "from-orange-400 from-0% to-yellow-500 to-100%";
   }
   return finalGradientString;
 }

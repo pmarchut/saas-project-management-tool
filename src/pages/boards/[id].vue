@@ -120,7 +120,13 @@ const handleUpdateTask = (t: Partial<Task>) => {
     data: { 
       tasks: { 
         update: {
-          data: t,
+          data: { 
+            ...t,
+            comments: t.comments ? { create: t.comments } : undefined,
+            labels: t.labels 
+              ? { reconnect: t.labels.map((l) => ({ id: l.id })) } 
+              : undefined,
+          },
           filter: { id: t.id }
         }
       }
@@ -275,13 +281,9 @@ const handleDeleteLabel = async (l: Partial<Label>) => {
 </script>
 
 <template>
-  <AppLoader 
-    v-if="loading || labelsLoading || loadingUpdateBoard" 
-    :overlay="true" 
-  />
-  <div v-else class="flex items-start justify-between w-100 pt-8">
+  <div class="flex items-start justify-between w-100">
     <div>
-      <app-page-heading>
+      <AppPageHeading>
         <input 
           type="text" 
           :value="board.title"
@@ -292,9 +294,15 @@ const handleDeleteLabel = async (l: Partial<Label>) => {
             })
           "
         />
-      </app-page-heading>
+      </AppPageHeading>
     
-      <board-drag-and-drop :board="board" :tasks="tasks" @update="handleUpdateBoard" :addTask="addTask" />
+      <board-drag-and-drop 
+        v-if="board.id"
+        :board="board" 
+        :tasks="tasks" 
+        @update="handleUpdateBoard" 
+        :addTask="addTask" 
+      />
 
       <details>
         <pre>
@@ -320,8 +328,17 @@ const handleDeleteLabel = async (l: Partial<Label>) => {
 
     <RouterView 
       :loading-update-task="loadingUpdateBoard"
+      :labels="labels"
       @updateTask="handleUpdateTask" 
-      @close="router.push(`/boards/${route.params.id}`)" 
+      @close="router.push(`/boards/${route.params.id}`)"
+      @createLabel="handleLabelCreate"
+      @deleteLabel="handleDeleteLabel"
+      @updateLabel="handleUpdateLabel" 
+    />
+
+    <AppLoader 
+      v-if="loading || labelsLoading || loadingUpdateBoard" 
+      :overlay="true" 
     />
   </div>
 </template>

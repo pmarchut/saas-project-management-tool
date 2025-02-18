@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
     AppImageDropzone: typeof import('./src/components/AppImageDropzone.vue')['default']
     AppLabelsPicker: typeof import('./src/components/AppLabelsPicker.vue')['default']
     AppLoader: typeof import('./src/components/AppLoader.vue')['default']
+    AppPageHeading: typeof import('./src/components/AppPageHeading.vue')['default']
     BoardCard: typeof import('./src/components/BoardCard.vue')['default']
     BoardDragAndDrop: typeof import('./src/components/BoardDragAndDrop.vue')['default']
     BoardMenu: typeof import('./src/components/BoardMenu.vue')['default']

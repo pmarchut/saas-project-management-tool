@@ -10,6 +10,7 @@ query board($id: ID!) {
       items {
         id
         title
+        dueAt
         type
       }
     }
