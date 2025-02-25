@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch, reactive, toRaw } from 'vue';
+import { watch, reactive, toRaw, onMounted, ref } from 'vue';
 import { cloneDeep } from 'lodash-es';
 import draggable from 'vuedraggable';
 import type { Board, Column, Task } from '@/types';
@@ -31,6 +31,15 @@ watch(columns, () => {
   );
 });
 
+const supportsMouse = ref(true);
+
+// Wykrywanie obsługi myszy
+onMounted(() => {
+  supportsMouse.value = window.matchMedia(
+    "(hover: hover) and (pointer: fine)"
+  ).matches;
+});
+
 async function addTask({ column, title } : { column: Column, title: string }) {
   const newTask = { title }
   try {
@@ -50,6 +59,7 @@ async function addTask({ column, title } : { column: Column, title: string }) {
       :list="columns" 
       group="columns" 
       item-key="id"
+      :disabled="!supportsMouse"
       class="flex flex-grow-0 flex-shrink-0 overflow-x-scroll"
     >
       <template #item="{ element: column }">
@@ -69,6 +79,7 @@ async function addTask({ column, title } : { column: Column, title: string }) {
             item-key="uid"
             :animation="200"
             ghost-class="ghost-card"
+            :disabled="!supportsMouse"
             class="min-h-[400px]"
           >
             <template #item="{ element: taskId }">
