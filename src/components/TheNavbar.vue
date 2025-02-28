@@ -32,7 +32,7 @@ const authUserStore = useAuthUserStore();
         <span class="k-icon k-i-ungroup"></span>
         My Team
       </button>
-      <KPopup :anchor="'button'" :show="showTeams" class-name="mt-5">
+      <KPopup :anchor="'button'" :show="showTeams" class="mt-5">
         <ul>
           <li 
             v-for="team in authUserStore.user?.team.items" 
